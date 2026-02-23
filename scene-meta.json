@@ -1,0 +1,15 @@
+{
+  "id": "snake-scene",
+  "name": "Snake Scene",
+  "description": "Exported from embedded Flutter VisMan demo scene \"snake-scene\".",
+  "tags": [
+    "scene",
+    "snake"
+  ],
+  "source": "flutter-embedded-demo",
+  "generatedAt": "2026-02-23T08:11:45.557246Z",
+  "sceneFile": "visman.json",
+  "objectCount": 23,
+  "hasPhysics": true,
+  "has3D": false
+}

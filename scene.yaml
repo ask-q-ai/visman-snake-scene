@@ -1,0 +1,599 @@
+---
+initial_vm_state:
+  score: 0
+  length: 3
+  gameOver: false
+  tail1x: 280
+  tail1y: 180
+  tail2x: 260
+  tail2y: 180
+  tail3x: 240
+  tail3y: 180
+  tail4x: 240
+  tail4y: 180
+  tail5x: 220
+  tail5y: 180
+  tail6x: 200
+  tail6y: 180
+  tail7x: 180
+  tail7y: 180
+  tail8x: 160
+  tail8y: 180
+  tail9x: 140
+  tail9y: 180
+  tail10x: 120
+  tail10y: 180
+pulse:
+  bpm: 360
+canvasLayer:
+- id: arena-bg
+  context: canvas
+  type: rectangle
+  position:
+    x: 0
+    y: 0
+  size:
+    width: 640
+    height: 360
+  style:
+    fillStyle: "#0f172a"
+    strokeStyle: "#1e293b"
+    lineWidth: 2
+- id: wall-top
+  context: canvas
+  type: rectangle
+  position:
+    x: 0
+    y: 0
+  size:
+    width: 640
+    height: 8
+  style:
+    fillStyle: "#334155"
+    strokeStyle: "#475569"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - wall
+- id: wall-bottom
+  context: canvas
+  type: rectangle
+  position:
+    x: 0
+    y: 352
+  size:
+    width: 640
+    height: 8
+  style:
+    fillStyle: "#334155"
+    strokeStyle: "#475569"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - wall
+- id: wall-left
+  context: canvas
+  type: rectangle
+  position:
+    x: 0
+    y: 0
+  size:
+    width: 8
+    height: 360
+  style:
+    fillStyle: "#334155"
+    strokeStyle: "#475569"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - wall
+- id: wall-right
+  context: canvas
+  type: rectangle
+  position:
+    x: 632
+    y: 0
+  size:
+    width: 8
+    height: 360
+  style:
+    fillStyle: "#334155"
+    strokeStyle: "#475569"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - wall
+- id: tick-controller
+  context: canvas
+  type: circle
+  visible: false
+  position:
+    x: -1000
+    y: -1000
+  callbacks:
+    onBeat: tick_tail
+  actions:
+    tick_tail:
+      stateMutations:
+      - path: vm.tail10x
+        operation: set
+        value: "{{ @vm.tail9x }}"
+      - path: vm.tail10y
+        operation: set
+        value: "{{ @vm.tail9y }}"
+      - path: vm.tail9x
+        operation: set
+        value: "{{ @vm.tail8x }}"
+      - path: vm.tail9y
+        operation: set
+        value: "{{ @vm.tail8y }}"
+      - path: vm.tail8x
+        operation: set
+        value: "{{ @vm.tail7x }}"
+      - path: vm.tail8y
+        operation: set
+        value: "{{ @vm.tail7y }}"
+      - path: vm.tail7x
+        operation: set
+        value: "{{ @vm.tail6x }}"
+      - path: vm.tail7y
+        operation: set
+        value: "{{ @vm.tail6y }}"
+      - path: vm.tail6x
+        operation: set
+        value: "{{ @vm.tail5x }}"
+      - path: vm.tail6y
+        operation: set
+        value: "{{ @vm.tail5y }}"
+      - path: vm.tail5x
+        operation: set
+        value: "{{ @vm.tail4x }}"
+      - path: vm.tail5y
+        operation: set
+        value: "{{ @vm.tail4y }}"
+      - path: vm.tail4x
+        operation: set
+        value: "{{ @vm.tail3x }}"
+      - path: vm.tail4y
+        operation: set
+        value: "{{ @vm.tail3y }}"
+      - path: vm.tail3x
+        operation: set
+        value: "{{ @vm.tail2x }}"
+      - path: vm.tail3y
+        operation: set
+        value: "{{ @vm.tail2y }}"
+      - path: vm.tail2x
+        operation: set
+        value: "{{ @vm.tail1x }}"
+      - path: vm.tail2y
+        operation: set
+        value: "{{ @vm.tail1y }}"
+      - path: vm.tail1x
+        operation: set
+        value: "{{ @vm.objects.snake-head.position.x }}"
+      - path: vm.tail1y
+        operation: set
+        value: "{{ @vm.objects.snake-head.position.y }}"
+- id: snake-head
+  context: canvas
+  type: rectangle
+  position:
+    x: 300
+    y: 180
+  size:
+    width: 18
+    height: 18
+  style:
+    fillStyle: "#22c55e"
+    strokeStyle: "#14532d"
+    lineWidth: 2
+  physics:
+    kinematic: true
+    bodyType: dynamic
+    vx: 120
+    vy: 0
+    bounce: 0
+    friction: 0
+    fixedRotation: true
+  collision:
+    collisionGroups:
+    - snake-head
+    collidesWith:
+    - wall
+    - snake-body
+    onCollision: die
+  actions:
+    move_left:
+      physics:
+        vx: -120
+        vy: 0
+    move_right:
+      physics:
+        vx: 120
+        vy: 0
+    move_up:
+      physics:
+        vx: 0
+        vy: -120
+    move_down:
+      physics:
+        vx: 0
+        vy: 120
+    die:
+      stateMutations:
+      - path: vm.gameOver
+        operation: set
+        value: true
+      sequence:
+      - stop_motion
+    stop_motion:
+      physics:
+        vx: 0
+        vy: 0
+  callbacks:
+    onKeyPress:
+      ArrowLeft: move_left
+      ArrowRight: move_right
+      ArrowUp: move_up
+      ArrowDown: move_down
+- id: snake-body-1
+  context: canvas
+  type: rectangle
+  position:
+    x: "{{ @vm.length > 2 ? @vm.tail1x : -1000 }}"
+    y: "{{ @vm.length > 2 ? @vm.tail1y : -1000 }}"
+  size:
+    width: 16
+    height: 16
+  style:
+    fillStyle: "#4ade80"
+    strokeStyle: "#166534"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - snake-body
+- id: snake-body-2
+  context: canvas
+  type: rectangle
+  position:
+    x: "{{ @vm.length > 3 ? @vm.tail2x : -1000 }}"
+    y: "{{ @vm.length > 3 ? @vm.tail2y : -1000 }}"
+  size:
+    width: 16
+    height: 16
+  style:
+    fillStyle: "#4ade80"
+    strokeStyle: "#166534"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - snake-body
+- id: snake-body-3
+  context: canvas
+  type: rectangle
+  position:
+    x: "{{ @vm.length > 4 ? @vm.tail3x : -1000 }}"
+    y: "{{ @vm.length > 4 ? @vm.tail3y : -1000 }}"
+  size:
+    width: 16
+    height: 16
+  style:
+    fillStyle: "#4ade80"
+    strokeStyle: "#166534"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - snake-body
+- id: snake-body-4
+  context: canvas
+  type: rectangle
+  position:
+    x: "{{ @vm.length > 5 ? @vm.tail4x : -1000 }}"
+    y: "{{ @vm.length > 5 ? @vm.tail4y : -1000 }}"
+  size:
+    width: 16
+    height: 16
+  style:
+    fillStyle: "#4ade80"
+    strokeStyle: "#166534"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - snake-body
+- id: snake-body-5
+  context: canvas
+  type: rectangle
+  position:
+    x: "{{ @vm.length > 6 ? @vm.tail5x : -1000 }}"
+    y: "{{ @vm.length > 6 ? @vm.tail5y : -1000 }}"
+  size:
+    width: 16
+    height: 16
+  style:
+    fillStyle: "#4ade80"
+    strokeStyle: "#166534"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - snake-body
+- id: snake-body-6
+  context: canvas
+  type: rectangle
+  position:
+    x: "{{ @vm.length > 7 ? @vm.tail6x : -1000 }}"
+    y: "{{ @vm.length > 7 ? @vm.tail6y : -1000 }}"
+  size:
+    width: 16
+    height: 16
+  style:
+    fillStyle: "#4ade80"
+    strokeStyle: "#166534"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - snake-body
+- id: snake-body-7
+  context: canvas
+  type: rectangle
+  position:
+    x: "{{ @vm.length > 8 ? @vm.tail7x : -1000 }}"
+    y: "{{ @vm.length > 8 ? @vm.tail7y : -1000 }}"
+  size:
+    width: 16
+    height: 16
+  style:
+    fillStyle: "#4ade80"
+    strokeStyle: "#166534"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - snake-body
+- id: snake-body-8
+  context: canvas
+  type: rectangle
+  position:
+    x: "{{ @vm.length > 9 ? @vm.tail8x : -1000 }}"
+    y: "{{ @vm.length > 9 ? @vm.tail8y : -1000 }}"
+  size:
+    width: 16
+    height: 16
+  style:
+    fillStyle: "#4ade80"
+    strokeStyle: "#166534"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - snake-body
+- id: snake-body-9
+  context: canvas
+  type: rectangle
+  position:
+    x: "{{ @vm.length > 10 ? @vm.tail9x : -1000 }}"
+    y: "{{ @vm.length > 10 ? @vm.tail9y : -1000 }}"
+  size:
+    width: 16
+    height: 16
+  style:
+    fillStyle: "#4ade80"
+    strokeStyle: "#166534"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - snake-body
+- id: snake-body-10
+  context: canvas
+  type: rectangle
+  position:
+    x: "{{ @vm.length > 11 ? @vm.tail10x : -1000 }}"
+    y: "{{ @vm.length > 11 ? @vm.tail10y : -1000 }}"
+  size:
+    width: 16
+    height: 16
+  style:
+    fillStyle: "#4ade80"
+    strokeStyle: "#166534"
+    lineWidth: 1
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - snake-body
+- id: food
+  context: canvas
+  type: circle
+  position:
+    x: 520
+    y: 180
+  size:
+    radius: 7
+  style:
+    fillStyle: "#f59e0b"
+    strokeStyle: "#b45309"
+    lineWidth: 2
+  physics:
+    bodyType: static
+  collision:
+    collisionGroups:
+    - food
+    collidesWith:
+    - snake-head
+    trigger: true
+    triggerAction: eaten
+  actions:
+    eaten:
+      stateMutations:
+      - path: vm.score
+        operation: increment
+        value: 1
+      - path: vm.length
+        operation: increment
+        value: 1
+      sequence:
+      - respawn_food
+    respawn_food:
+      randomPick:
+      - p1
+      - p2
+      - p3
+      - p4
+      - p5
+      - p6
+      - p7
+      - p8
+      - p9
+      - p10
+    p1:
+      transform:
+        position:
+          x: 80
+          y: 80
+    p2:
+      transform:
+        position:
+          x: 140
+          y: 220
+    p3:
+      transform:
+        position:
+          x: 220
+          y: 100
+    p4:
+      transform:
+        position:
+          x: 280
+          y: 280
+    p5:
+      transform:
+        position:
+          x: 360
+          y: 140
+    p6:
+      transform:
+        position:
+          x: 420
+          y: 260
+    p7:
+      transform:
+        position:
+          x: 500
+          y: 80
+    p8:
+      transform:
+        position:
+          x: 560
+          y: 220
+    p9:
+      transform:
+        position:
+          x: 200
+          y: 320
+    p10:
+      transform:
+        position:
+          x: 440
+          y: 320
+domLayer:
+- id: snake-title
+  context: dom
+  type: div
+  position:
+    x: 14
+    y: 10
+  properties:
+    text: SNAKE
+  style:
+    color: "#86efac"
+    fontSize: 14
+    fontFamily: monospace
+    fontWeight: bold
+- id: snake-score
+  context: dom
+  type: div
+  position:
+    x: 14
+    y: 30
+  properties:
+    text: SCORE {{ @vm.score }}  LENGTH {{ @vm.length }}
+  style:
+    color: "#e2e8f0"
+    fontSize: 13
+    fontFamily: monospace
+    fontWeight: bold
+- id: snake-help
+  context: dom
+  type: div
+  position:
+    x: 380
+    y: 10
+  properties:
+    text: Arrows to move
+  style:
+    color: "#cbd5e1"
+    fontSize: 12
+    fontFamily: monospace
+- id: game-over
+  context: dom
+  type: div
+  position:
+    x: 210
+    y: 130
+  showWhen:
+    "@vm.gameOver": true
+  properties:
+    text: GAME OVER
+  style:
+    color: "#ef4444"
+    fontSize: 46
+    fontWeight: bold
+    fontFamily: monospace
+- id: restart-btn
+  context: dom
+  type: div
+  position:
+    x: 246
+    y: 200
+  size:
+    width: 140
+    height: 42
+  showWhen:
+    "@vm.gameOver": true
+  properties:
+    text: RESTART
+  style:
+    fillStyle: "#16a34a"
+    color: "#ffffff"
+    fontSize: 20
+    fontWeight: bold
+    fontFamily: monospace
+  callbacks:
+    onClick: restart_game
+  actions:
+    restart_game:
+      restart: true
